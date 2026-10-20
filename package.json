@@ -1,0 +1,20 @@
+{
+  "name": "airbridge",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AirBridge - High-speed wireless file transfer between Android and Windows",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "cd server && npm run dev",
+    "dev:client": "cd client && npm run dev",
+    "build": "npm run build:server && npm run build:client",
+    "build:server": "cd server && npm run build",
+    "build:client": "cd client && npm run build",
+    "start": "cd server && npm start",
+    "install:all": "npm install && cd server && npm install && cd ../client && npm install",
+    "test": "cd server && npm test"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
