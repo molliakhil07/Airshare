@@ -9,14 +9,15 @@ AirShare lets you pair your phone with your computer using a QR code or PIN and 
 - Wireless file transfers over your local network
 - QR code and PIN pairing
 - Chunked and resumable transfers for large files
-- Windows desktop application with a custom icon
+- Windows desktop application 
 - Transfer history and file management
 - Local file storage on your computer
+- High Speed sharing through wi-fi
 
 ## Windows Installation
 
-1. Open the [GitHub Releases page](https://github.com/molliakhil07/Airbridge/releases).
-2. Download `AirShare Setup 1.0.0.exe` from the release assets.
+1. Open the [GitHub Releases page](https://github.com/molliakhil07/Airshare/releases).
+2. Download `AirShare Setup 1.0.1.exe` from the release assets.
 3. Run the installer and follow the setup instructions.
 4. Launch AirShare from the desktop shortcut or Start menu.
 5. Connect your Android phone and Windows PC to the same Wi-Fi network.
@@ -60,4 +61,4 @@ AirShare v1.0.0 — initial Windows desktop release.
 
 ## Feedback
 
-Report bugs and suggest features through [GitHub Issues](https://github.com/molliakhil07/Airbridge/issues).
+Report bugs and suggest features through [GitHub Issues](https://github.com/molliakhil07/Airshare/issues).
