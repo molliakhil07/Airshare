@@ -94,7 +94,9 @@ app.get('/api/stats', (_req, res) => {
 });
 
 // Serve the React client in production.
-const clientDistPath = path.join(process.cwd(), '..', 'client', 'dist');
+const clientDistPath =
+  process.env.AIRBRIDGE_CLIENT_DIST ||
+  path.join(process.cwd(), '..', 'client', 'dist');
 
 app.use(express.static(clientDistPath));
 

@@ -13,3 +13,6 @@ server/dist/
 
 # TypeScript build cache
 *.tsbuildinfo
+
+# Packaged installers and release build output
+/release/

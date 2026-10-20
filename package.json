@@ -1,8 +1,10 @@
+
 {
   "name": "airbridge",
   "version": "1.0.0",
   "private": true,
-  "description": "AirBridge - High-speed wireless file transfer between Android and Windows",
+  "description": "AirShare - High-speed wireless file transfer between Android and Windows",
+  "main": "electron/main.cjs",
   "scripts": {
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "dev:server": "cd server && npm run dev",
@@ -12,9 +14,59 @@
     "build:client": "cd client && npm run build",
     "start": "cd server && npm start",
     "install:all": "npm install && cd server && npm install && cd ../client && npm install",
-    "test": "cd server && npm test"
+    "test": "cd server && npm test",
+    "desktop:dev": "npm run build && electron .",
+    "desktop:dist": "npm run build && electron-builder --win nsis"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "electron": "^44.9.1",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "com.airshare.desktop",
+    "productName": "AirShare",
+    "asar": true,
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "electron/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "server/dist",
+        "to": "server/dist"
+      },
+      {
+        "from": "server/node_modules",
+        "to": "server/node_modules"
+      },
+      {
+        "from": "server/package.json",
+        "to": "server/package.json"
+      },
+      {
+        "from": "client/dist",
+        "to": "client/dist"
+      }
+    ],
+    "win": {
+  "icon": "build/icon.ico",
+  "target": [
+    {
+      "target": "nsis",
+      "arch": ["x64"]
+    }
+  ]
+},
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "AirShare"
+    }
   }
 }
