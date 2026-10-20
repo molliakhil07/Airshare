@@ -665,3 +665,67 @@ body {
 .justify-between { justify-content: space-between; }
 .w-full { width: 100%; }
 
+
+
+/* ============ App Footer ============ */
+
+.app-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  background: var(--bg-secondary);
+  color: var(--text-tertiary);
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.footer-credit {
+  color: var(--text-secondary);
+}
+
+.footer-credit span {
+  color: var(--accent);
+}
+
+.footer-portfolio-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+  transition: color var(--transition);
+}
+
+.footer-portfolio-link:hover {
+  color: var(--accent-hover);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.footer-portfolio-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+.footer-external-icon {
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.footer-version {
+  color: var(--text-tertiary);
+}
+
+@media (max-width: 480px) {
+  .app-footer {
+    gap: 8px 12px;
+    padding: 14px 16px;
+    font-size: 0.75rem;
+  }
+}

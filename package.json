@@ -1,7 +1,6 @@
-
 {
   "name": "airbridge",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "AirShare - High-speed wireless file transfer between Android and Windows",
   "main": "electron/main.cjs",
@@ -53,14 +52,16 @@
       }
     ],
     "win": {
-  "icon": "build/icon.ico",
-  "target": [
-    {
-      "target": "nsis",
-      "arch": ["x64"]
-    }
-  ]
-},
+      "icon": "build/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,

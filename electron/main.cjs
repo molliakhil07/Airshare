@@ -1,11 +1,11 @@
-
-const { app, BrowserWindow, dialog } = require('electron');
+const { app, BrowserWindow, dialog, shell } = require('electron');
 const { spawn } = require('node:child_process');
 const path = require('node:path');
 const fs = require('node:fs');
 
 const PORT = Number(process.env.AIRBRIDGE_PORT || 3456);
 const BASE_URL = `http://127.0.0.1:${PORT}`;
+const PORTFOLIO_URL = 'https://molli-portfolio.vercel.app/';
 
 let mainWindow = null;
 let serverProcess = null;
@@ -41,7 +41,7 @@ function startServer() {
     throw new Error(`Backend build not found:\n${paths.serverEntry}`);
   }
 
-  if (!fs.existsSync(paths.clientDist, { withFileTypes: false })) {
+  if (!fs.existsSync(paths.clientDist)) {
     throw new Error(`Frontend build not found:\n${paths.clientDist}`);
   }
 
@@ -114,15 +114,33 @@ function createWindow() {
     },
   });
 
+  // Open only the portfolio URL in the user's default browser.
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    try {
+      const target = new URL(url);
+
+      if (
+        target.protocol === 'https:' &&
+        target.origin === 'https://molli-portfolio.vercel.app'
+      ) {
+        void shell.openExternal(PORTFOLIO_URL);
+      }
+    } catch (error) {
+      console.error('Unable to open external link:', error);
+    }
+
+    return { action: 'deny' };
+  });
+
   mainWindow.once('ready-to-show', () => {
-    mainWindow.show();
+    mainWindow?.show();
   });
 
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
 
-  mainWindow.loadURL(BASE_URL);
+  void mainWindow.loadURL(BASE_URL);
 }
 
 app.whenReady().then(async () => {

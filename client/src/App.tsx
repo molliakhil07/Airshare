@@ -244,6 +244,21 @@ export default function App() {
           />
         )}
       </main>
+
+      <footer className="app-footer">
+        <span className="footer-credit">Built with <span aria-label="love">♥</span> in India</span>
+        <a
+          className="footer-portfolio-link"
+          href="https://molli-portfolio.vercel.app/"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Visit Akhil's portfolio (opens in a new tab)"
+        >
+          by AKHIL
+          <span className="footer-external-icon" aria-hidden="true">↗</span>
+        </a>
+        <span className="footer-version">AirShare · v1.0.1</span>
+      </footer>
     </div>
   );
 }
