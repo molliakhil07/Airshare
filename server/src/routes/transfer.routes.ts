@@ -1,10 +1,96 @@
+import { spawn } from 'node:child_process';
 import { Router } from 'express';
 import type { Request, Response } from 'express';
-import { requireAuth } from '../middleware/index.js';
+import {
+  requireAuth,
+  requireHostDashboardToken,
+} from '../middleware/index.js';
 import { transferService } from '../services/transfer.service.js';
 import type { CreateTransferRequest } from '../types/index.js';
 
 const router = Router();
+
+// Host-only dashboard: read transfer records without using the phone's JWT.
+router.get('/dashboard', requireHostDashboardToken, async (_req, res) => {
+  try {
+    await transferService.ready();
+
+    const transfers = transferService.listTransfers({ limit: 100 });
+
+    res.json({
+      success: true,
+      data: transfers,
+    });
+  } catch {
+    res.status(500).json({
+      success: false,
+      error: 'Unable to load transfer dashboard',
+    });
+  }
+});
+
+/**
+ * POST /api/transfers/dashboard/:id/show-in-folder
+ * Open Windows File Explorer with the completed file selected.
+ */
+router.post(
+  '/dashboard/:id/show-in-folder',
+  requireHostDashboardToken,
+  async (req: Request, res: Response) => {
+    if (process.platform !== 'win32') {
+      res.status(501).json({
+        success: false,
+        error: 'File Explorer is only available on Windows.',
+      });
+      return;
+    }
+
+    try {
+      const filePath = await transferService.getCompletedFilePath(
+        req.params.id
+      );
+
+      if (!filePath) {
+        res.status(404).json({
+          success: false,
+          error: 'Completed file not found. It may have been removed.',
+        });
+        return;
+      }
+
+      console.log('[AirShare] Opening received file:', filePath);
+
+      const explorer = spawn(
+        'explorer.exe',
+        [`/select,${filePath}`],
+        {
+          detached: true,
+          stdio: 'ignore',
+          windowsHide: false,
+        }
+      );
+
+      explorer.once('error', (error) => {
+        console.error('[AirShare] Explorer launch failed:', error);
+      });
+
+      explorer.unref();
+
+      res.json({
+        success: true,
+        message: 'File Explorer launch requested.',
+        filePath,
+      });
+    } catch (error) {
+      console.error('[AirShare] Show-in-folder failed:', error);
+
+      res.status(500).json({
+        success: false,
+        error: 'Unable to open File Explorer.',
+      });
+    }
+  }
+);
 
 // All transfer routes require authentication
 router.use(requireAuth);

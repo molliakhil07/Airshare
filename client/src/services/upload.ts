@@ -1,5 +1,5 @@
-/**
- * AirBridge Upload Engine
+﻿/**
+ * AirShare Upload Engine
  * 
  * Handles chunked file uploads with:
  * - Memory-bounded streaming (never loads full file)
@@ -95,7 +95,7 @@ export async function uploadFile(
       const end = Math.min(start + chunkSize, file.size);
       const chunkBlob = file.slice(start, end);
 
-      // Read the chunk into an ArrayBuffer (bounded memory — only one chunk at a time)
+      // Read the chunk into an ArrayBuffer (bounded memory â€” only one chunk at a time)
       const chunkData = await chunkBlob.arrayBuffer();
 
       // Upload with retries

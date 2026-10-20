@@ -1,6 +1,7 @@
 import path from 'node:path';
 import os from 'node:os';
 
+
 /** Server configuration */
 export const config = {
   /** Server port */

@@ -63,6 +63,35 @@ class TransferService {
   }
 
   /**
+ * Return the saved path for a completed transfer.
+ * The path is derived from server-side metadata, never from user input.
+ */
+async getCompletedFilePath(transferId: string): Promise<string | null> {
+  await this.ready();
+
+  const meta = this.transfers.get(transferId);
+
+  if (!meta || meta.status !== 'completed') {
+    return null;
+  }
+
+  const filePath = path.resolve(config.uploadsDir, meta.safeName);
+  const uploadsRoot = path.resolve(config.uploadsDir);
+
+  // Ensure the resolved path stays inside the uploads directory.
+  if (path.dirname(filePath) !== uploadsRoot) {
+    return null;
+  }
+
+  try {
+    await fsp.access(filePath, fs.constants.F_OK);
+    return filePath;
+  } catch {
+    return null;
+  }
+}
+
+  /**
    * Create a new transfer
    */
   async createTransfer(

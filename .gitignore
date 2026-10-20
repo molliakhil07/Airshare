@@ -1,0 +1,15 @@
+node_modules/
+.env
+.env.*
+!.env.example
+
+# Local AirBridge data and installation credentials
+/storage/
+/server/storage/
+
+# Build outputs
+client/dist/
+server/dist/
+
+# TypeScript build cache
+*.tsbuildinfo

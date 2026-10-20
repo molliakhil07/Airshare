@@ -1,4 +1,4 @@
-
+﻿
 import { useRef, useState } from 'react';
 import {
   UploadCloud,
@@ -180,7 +180,7 @@ export default function TransferView() {
             </h2>
             <p className="text-secondary text-small">
               Transfer files wirelessly from your Android phone
-              to the computer hosting AirBridge.
+              to the computer hosting AirShare.
             </p>
           </div>
         </div>
@@ -249,7 +249,7 @@ export default function TransferView() {
             ) : (
               <Play size={17} />
             )}
-            {isUploading ? 'Transferring…' : 'Start transfer'}
+            {isUploading ? 'Transferringâ€¦' : 'Start transfer'}
           </button>
 
           <button
@@ -346,7 +346,7 @@ export default function TransferView() {
 
                     <div className="file-meta">
                       {formatBytes(file.file.size)}
-                      {' · '}
+                      {' Â· '}
                       {file.status === 'pending' && 'Waiting'}
                       {file.status === 'uploading' && 'Uploading'}
                       {file.status === 'finalizing' && 'Verifying and saving'}
@@ -473,7 +473,7 @@ export default function TransferView() {
           <p className="text-secondary text-small" style={{ margin: 0 }}>
             When both devices can reach your PC over the local network,
             file data can travel directly to your PC without cloud storage.
-            Keep AirBridge running until transfers finish.
+            Keep AirShare running until transfers finish.
           </p>
         </div>
         <Zap size={23} color="var(--accent)" />

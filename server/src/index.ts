@@ -1,39 +1,57 @@
+﻿import hostRoutes from './routes/host.routes.js';
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import path from 'node:path';
-import { config, getPrimaryAddress, getLocalAddresses } from './config/index.js';
+
+import {
+  config,
+  getPrimaryAddress,
+  getLocalAddresses,
+} from './config/index.js';
+
+import { hostAuthService } from './services/host-auth.service.js';
 import { transferService } from './services/transfer.service.js';
 import { shareService } from './services/share.service.js';
+
 import pairRoutes from './routes/pair.routes.js';
 import transferRoutes from './routes/transfer.routes.js';
 import shareRoutes from './routes/share.routes.js';
+
 import { errorHandler } from './middleware/index.js';
 
 const app = express();
 
-// Security headers (but allow local network access)
+app.use('/api/host', hostRoutes);
+
+// Security headers while allowing local-network file transfers.
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: 'cross-origin' },
-    contentSecurityPolicy: false, // Allow embedded QR code images
+    contentSecurityPolicy: false,
   })
 );
 
-// CORS — allow requests from any origin on the local network
+// Preserve the current CORS behavior for the existing phone workflow.
+// We will tighten dashboard/bootstrap access separately.
 app.use(
   cors({
-    origin: true, // reflect request origin
+    origin: true,
     credentials: true,
-    exposedHeaders: ['Content-Range', 'Accept-Ranges', 'Content-Length', 'Content-Disposition'],
+    exposedHeaders: [
+      'Content-Range',
+      'Accept-Ranges',
+      'Content-Length',
+      'Content-Disposition',
+    ],
   })
 );
 
-// Parse JSON for non-chunk endpoints (small bodies only)
+// Parse JSON for non-chunk endpoints.
 app.use(
   express.json({
     limit: config.maxBodySize,
-    // Skip JSON parsing for chunk upload paths
     type: (req) => {
       if (req.url?.includes('/chunks/')) return false;
       return req.headers['content-type']?.includes('json') ?? false;
@@ -41,22 +59,22 @@ app.use(
   })
 );
 
-// Health check
+// Health check.
 app.get('/api/health', (_req, res) => {
   res.json({
     status: 'ok',
-    name: 'AirBridge',
+    name: 'AirShare',
     version: '1.0.0',
     uptime: process.uptime(),
   });
 });
 
-// Routes
+// Existing API routes.
 app.use('/api/pair', pairRoutes);
 app.use('/api/transfers', transferRoutes);
 app.use('/api/shares', shareRoutes);
 
-// Stats endpoint
+// Stats endpoint.
 app.get('/api/stats', (_req, res) => {
   const transferStats = transferService.getStats();
   const shares = shareService.listShares();
@@ -66,37 +84,45 @@ app.get('/api/stats', (_req, res) => {
     data: {
       ...transferStats,
       activeShares: shares.length,
-      totalDownloads: shares.reduce((sum, s) => sum + s.downloadCount, 0),
+      totalDownloads: shares.reduce(
+        (sum, share) => sum + share.downloadCount,
+        0
+      ),
       uptime: Math.floor(process.uptime()),
     },
   });
 });
 
-// Serve the React client in production
+// Serve the React client in production.
 const clientDistPath = path.join(process.cwd(), '..', 'client', 'dist');
+
 app.use(express.static(clientDistPath));
+
 app.get('*', (req, res, next) => {
-  // Only serve index.html for non-API routes
   if (req.path.startsWith('/api/')) {
     next();
     return;
   }
+
   res.sendFile(path.join(clientDistPath, 'index.html'), (err) => {
     if (err) {
-      // In development, the client runs on its own dev server
       res.status(200).json({
-        message: 'AirBridge API is running. Client dev server is at http://localhost:5173',
+        message:
+          'AirShare API is running. Client dev server is at http://localhost:5173',
       });
     }
   });
 });
 
-// Error handler
+// Error handler.
 app.use(errorHandler);
 
-// Start server
+// Start server.
 async function start(): Promise<void> {
-  // Initialize services
+  // Initialize local installation authentication before accepting requests.
+  await hostAuthService.ready();
+
+  // Initialize existing services.
   await transferService.ready();
   await shareService.ready();
 
@@ -106,31 +132,36 @@ async function start(): Promise<void> {
     const url = `http://${primary}:${config.port}`;
 
     console.log('');
-    console.log('╔══════════════════════════════════════════════════════╗');
-    console.log('║                                                      ║');
-    console.log('║       ✈  AirBridge — Wireless File Transfer          ║');
-    console.log('║                                                      ║');
-    console.log('╠══════════════════════════════════════════════════════╣');
-    console.log(`║  Server running on port ${config.port}                         ║`);
-    console.log('║                                                      ║');
-    console.log('║  Access URLs:                                        ║');
-    console.log(`║  → ${url.padEnd(48)} ║`);
-    for (const addr of addresses) {
-      const addrUrl = `http://${addr.address}:${config.port}`;
-      console.log(`║    ${addr.name}: ${addrUrl.padEnd(38)} ║`);
+    console.log('â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—');
+    console.log('â•‘                                                          â•‘');
+    console.log('â•‘       âœˆ  AirBridge â€” Wireless File Transfer              â•‘');
+    console.log('â•‘                                                          â•‘');
+    console.log('â• â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•£');
+    console.log(`â•‘  Server running on port ${String(config.port).padEnd(32)}â•‘`);
+    console.log('â•‘                                                          â•‘');
+    console.log('â•‘  Access URLs:                                            â•‘');
+    console.log(`â•‘  â†’ ${url.padEnd(54)}â•‘`);
+
+    for (const address of addresses) {
+      const addressUrl = `http://${address.address}:${config.port}`;
+      console.log(
+        `â•‘    ${`${address.name}: ${addressUrl}`.padEnd(56)}â•‘`
+      );
     }
-    console.log('║                                                      ║');
-    console.log('║  Open this URL on your phone to start transferring   ║');
-    console.log('║                                                      ║');
-    console.log('║  Storage: ' + config.storageDir.substring(0, 42).padEnd(42) + '  ║');
-    console.log('║                                                      ║');
-    console.log('╚══════════════════════════════════════════════════════╝');
+
+    console.log('â•‘                                                          â•‘');
+    console.log('â•‘  Open the server URL on your phone to start transferring â•‘');
+    console.log('â•‘                                                          â•‘');
+    console.log(`â•‘  Storage: ${config.storageDir.substring(0, 48).padEnd(48)}â•‘`);
+    console.log('â•‘                                                          â•‘');
+    console.log('â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•');
     console.log('');
+    console.log('Host authentication initialized for this installation.');
   });
 }
 
-start().catch((err) => {
-  console.error('Failed to start AirBridge server:', err);
+start().catch((error) => {
+  console.error('Failed to start AirShare server:', error);
   process.exit(1);
 });
 

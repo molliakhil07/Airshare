@@ -1,7 +1,10 @@
 import type { Request, Response, NextFunction } from 'express';
 import { authService } from '../services/auth.service.js';
+import {
+  COOKIE_NAME,
+  hostSessionService,
+} from '../services/host-session.service.js';
 
-/** Extend Express Request with session info */
 declare global {
   namespace Express {
     interface Request {
@@ -10,15 +13,47 @@ declare global {
   }
 }
 
-/**
- * Middleware to require a valid JWT session token.
- * Token can be in Authorization header (Bearer token) or query param.
- */
-export function requireAuth(req: Request, res: Response, next: NextFunction): void {
-  // Extract token from Authorization header or query param
-  let token: string | undefined;
+function readCookie(req: Request, name: string): string | undefined {
+  const cookieHeader = req.headers.cookie;
+  if (!cookieHeader) return undefined;
 
+  const prefix = `${name}=`;
+  const item = cookieHeader
+    .split(';')
+    .map((part) => part.trim())
+    .find((part) => part.startsWith(prefix));
+
+  return item ? item.slice(prefix.length) : undefined;
+}
+
+/** Authenticate the PC dashboard using a temporary HttpOnly cookie. */
+export function requireHostDashboardToken(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void {
+  const token = readCookie(req, COOKIE_NAME);
+
+  if (!token || !hostSessionService.isValid(token)) {
+    res.status(401).json({
+      error: 'Host dashboard session required. Open the dashboard on this PC.',
+      code: 'HOST_SESSION_REQUIRED',
+    });
+    return;
+  }
+
+  next();
+}
+
+/** Require a valid paired-device JWT. */
+export function requireAuth(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void {
+  let token: string | undefined;
   const authHeader = req.headers.authorization;
+
   if (authHeader?.startsWith('Bearer ')) {
     token = authHeader.substring(7);
   } else if (typeof req.query.token === 'string') {
@@ -34,6 +69,7 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
   }
 
   const result = authService.verifyToken(token);
+
   if (!result.valid || !result.sessionId) {
     res.status(401).json({
       error: result.error || 'Invalid token',
@@ -46,9 +82,7 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
   next();
 }
 
-/**
- * Middleware to validate request body against required fields
- */
+/** Validate required request-body fields. */
 export function validateBody(requiredFields: string[]) {
   return (req: Request, res: Response, next: NextFunction): void => {
     const missing = requiredFields.filter((field) => {
@@ -68,10 +102,13 @@ export function validateBody(requiredFields: string[]) {
   };
 }
 
-/**
- * Global error handler
- */
-export function errorHandler(err: Error, req: Request, res: Response, _next: NextFunction): void {
+/** Global error handler. */
+export function errorHandler(
+  err: Error,
+  req: Request,
+  res: Response,
+  _next: NextFunction
+): void {
   console.error(`[Error] ${req.method} ${req.path}:`, err.message);
 
   if (err.message.includes('Unauthorized')) {

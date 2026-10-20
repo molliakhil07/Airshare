@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">AirBridge logo</title>
+  <desc id="desc">Orange wireless transfer waves and a file between a phone and laptop.</desc>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M184 124 Q256 58 328 124" stroke="#FF7A00" stroke-width="18"/>
+    <path d="M205 151 Q256 105 307 151" stroke="#FF7A00" stroke-width="18"/>
+    <rect x="82" y="190" width="78" height="150" rx="18" stroke="#F7F7F7" stroke-width="12"/>
+    <path d="M109 207 H133" stroke="#F7F7F7" stroke-width="7"/>
+    <rect x="350" y="204" width="102" height="94" rx="9" stroke="#F7F7F7" stroke-width="12"/>
+    <path d="M336 315 H466 L454 333 H348 Z" fill="#F7F7F7" stroke="#F7F7F7" stroke-width="5"/>
+    <path d="M213 190 H269 L293 214 V291 Q293 301 283 301 H213 Q203 301 203 291 V200 Q203 190 213 190 Z" fill="#FF7A00" stroke="#FF7A00" stroke-width="5"/>
+    <path d="M269 191 V214 H292" stroke="#111111" stroke-width="5"/>
+    <path d="M270 192 L291 213 H270 Z" fill="#F7F7F7" stroke="#F7F7F7" stroke-width="2"/>
+    <path d="M205 354 Q256 400 307 354" stroke="#FF7A00" stroke-width="18"/>
+    <path d="M184 381 Q256 447 328 381" stroke="#FF7A00" stroke-width="18"/>
+  </g>
+</svg>
